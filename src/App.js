@@ -1,26 +1,54 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
+import { getAllStarships } from './services/starwars-api';
+import { Route, Link, Switch } from 'react-router-dom';
+import StarshipPage from './pages/StarshipPage/StarshipPage'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+export default class App extends Component {
+  // State goes here
+  state = {
+    starships: []
+  }
+
+  async componentDidMount() {
+    var starships = await getAllStarships();
+    console.log(starships)
+    this.setState({
+      starships: starships.results
+    })
+  }
+
+  getStarship = (idx) => {
+    return this.state.starships[idx]
+  }
+
+  render () {
+    return (
+      <div className="App">
+        <header className="App-header">
+          STAR WARS STARSHIPS
+        </header>
+        <Switch>
+          <Route exact path="/" render={() =>
+            <section>
+              {this.state.starships.map((starship, idx) => 
+                <Link key={starship.name} to={`/starship/${idx}`}>
+                  {starship.name}
+                </Link>
+              )}
+            </section>
+          }/>
+
+          <Route path='/starship/:idx' render={(props) => 
+            <StarshipPage 
+            {...props}
+            getStarship={this.getStarship}
+            />
+          }/>
+        </Switch>
+      </div>
+    )
+  }
+
 }
-
-export default App;
